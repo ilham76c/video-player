@@ -1,4 +1,9 @@
 const playPauseButton = document.querySelector('.play-pause-btn');
+const theaterButton = document.querySelector('.theater-btn');
+const fullScreenButton = document.querySelector('.full-screen-btn');
+const miniPlayerButton = document.querySelector('.mini-player-btn');
+const muteBtn = document.querySelector('.mute-btn');
+const volumeSlider = document.querySelector('.volume-slider');
 const videoContainer = document.querySelector('.video-container');
 const video = document.querySelector('video');
 
@@ -8,9 +13,84 @@ document.addEventListener('keydown', (e) => {
     case 'k':
       togglePlay();
       break;
+    case 'f':
+      toggleFullScreenMode();
+      break;
+    case 't':
+      toggleTheaterMode();
+      break;
+    case 'i':
+      toggleMiniPlayerMode();
+      break;
+    case 'm':
+      toggleMute();
+      break;
     default:
       break;
   }
+})
+
+// Volume
+muteBtn.addEventListener('click', toggleMute);
+
+volumeSlider.addEventListener('input', (e) => {
+  video.volume = e.target.value;
+  video.muted = e.target.value === 0;
+})
+
+function toggleMute() {
+  video.muted = !video.muted;
+}
+
+video.addEventListener('volumechange', () => {
+  volumeSlider.value = video.volume;
+  let volumeLevel;
+  if (video.muted || video.volume === 0) {
+    volumeSlider.value = 0;
+    volumeLevel = 'muted';
+  } else if (video.volume >= .5) {
+    volumeLevel = 'high';
+  } else {
+    volumeLevel = 'low';
+  }
+  videoContainer.dataset.volumeLevel = volumeLevel;
+});
+
+// View Modes
+theaterButton.addEventListener('click', toggleTheaterMode);
+fullScreenButton.addEventListener('click', toggleFullScreenMode);
+miniPlayerButton.addEventListener('click', toggleMiniPlayerMode);
+
+function toggleTheaterMode() {
+  videoContainer.classList.toggle('theater');
+}
+
+function toggleFullScreenMode() {
+  if (document.fullscreenElement == null) {
+    videoContainer.requestFullscreen();
+  } else {
+    document.exitFullscreen();
+  }
+}
+
+function toggleMiniPlayerMode() {
+  if (videoContainer.classList.contains('mini-player')) {
+    document.exitPictureInPicture();
+  } else {
+    video.requestPictureInPicture();
+  }
+}
+
+document.addEventListener('fullscreenchange', () => {
+  videoContainer.classList.toggle('full-screen', document.fullscreenElement);
+});
+
+video.addEventListener('enterpictureinpicture', () => {
+  videoContainer.classList.add('mini-player');
+});
+
+video.addEventListener('leavepictureinpicture', () => {
+  videoContainer.classList.remove('mini-player');
 })
 
 // Play or Pause
