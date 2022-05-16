@@ -4,6 +4,8 @@ const fullScreenButton = document.querySelector('.full-screen-btn');
 const miniPlayerButton = document.querySelector('.mini-player-btn');
 const muteBtn = document.querySelector('.mute-btn');
 const volumeSlider = document.querySelector('.volume-slider');
+const currentTime = document.querySelector('.current-time');
+const totalTime = document.querySelector('.total-time');
 const videoContainer = document.querySelector('.video-container');
 const video = document.querySelector('video');
 
@@ -25,10 +27,43 @@ document.addEventListener('keydown', (e) => {
     case 'm':
       toggleMute();
       break;
+    case 'arrowright':
+    case 'l':
+      skip(5);
+      break;
     default:
       break;
   }
 })
+
+// Duration
+video.addEventListener('loadeddata', () => {
+  totalTime.textContent = formatDuration(video.duration);
+});
+
+video.addEventListener('timeupdate', () => {
+  currentTime.textContent = formatDuration(video.currentTime);
+});
+
+const loadingZeroFormatter = new Intl.NumberFormat(undefined, {
+  minimumIntegerDigits: 2
+});
+
+function formatDuration(time) {
+  const seconds = Math.floor(time % 60);
+  const minutes = Math.floor(time / 60) % 60;
+  const hours = Math.floor(time / 3600);
+
+  if (hours === 0) {
+    return `${minutes}:${loadingZeroFormatter.format(seconds)}`
+  } else {
+    return `${hours}:${loadingZeroFormatter.format(minutes)}:${loadingZeroFormatter.format(seconds)}`
+  }
+}
+
+function skip(duration) {
+  video.currentTime += duration;
+}
 
 // Volume
 muteBtn.addEventListener('click', toggleMute);
