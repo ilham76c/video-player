@@ -1,3 +1,6 @@
+// video
+const video = document.querySelector('video');
+// button
 const playPauseButton = document.querySelector('.play-pause-btn');
 const theaterButton = document.querySelector('.theater-btn');
 const fullScreenButton = document.querySelector('.full-screen-btn');
@@ -6,13 +9,15 @@ const muteBtn = document.querySelector('.mute-btn');
 const captionsBtn = document.querySelector('.captions-btn');
 const speedBtn = document.querySelector('.speed-btn');
 const volumeSlider = document.querySelector('.volume-slider');
+// time
 const currentTime = document.querySelector('.current-time');
 const totalTime = document.querySelector('.total-time');
+// image
 const previewImg = document.querySelector('.preview-img');
 const thumbnailImg = document.querySelector('.thumbnail-img');
+// container
 const videoContainer = document.querySelector('.video-container');
 const timelineContainer = document.querySelector('.timeline-container');
-const video = document.querySelector('video');
 
 document.addEventListener('keydown', (e) => {
   const tagName = document.activeElement.tagName.toLowerCase()
@@ -47,14 +52,17 @@ document.addEventListener('keydown', (e) => {
     default:
       break;
   }
-})
+});
 
-// Timeline 
-timelineContainer.addEventListener('mousemove', handleTimelineUpdate);
-timelineContainer.addEventListener('mousedown', toggleScrubbing);
 
+/**
+ * Timeline
+ */
 let isScrubbing = false;
 let wasPaused;
+
+timelineContainer.addEventListener('mousemove', handleTimelineUpdate);
+timelineContainer.addEventListener('mousedown', toggleScrubbing);
 
 document.addEventListener('mouseup', (e) => {
   if (isScrubbing) toggleScrubbing(e);
@@ -95,18 +103,34 @@ function handleTimelineUpdate(e) {
     timelineContainer.style.setProperty('--preview-position', percent);
   }
 }
+/**
+ * End Timeline
+ */
 
-// Playback Speed
+
+/**
+ * Playback Speed
+ */
 speedBtn.addEventListener('click', changePlaybackSpeed);
 
 function changePlaybackSpeed() {
   let newPlaybackRate = video.playbackRate + 0.25;
-  if (newPlaybackRate > 2) newPlaybackRate = 0.25;
+
+  if (newPlaybackRate > 2) {
+    newPlaybackRate = 0.25;
+  }
+  
   video.playbackRate = newPlaybackRate;
   speedBtn.textContent = `${newPlaybackRate}x`;
 }
+/**
+ * End Playback Speed
+ */
 
-// Captions
+
+/**
+ * Captions
+ */
 const captions = video.textTracks[0];
 
 captions.mode = 'hidden';
@@ -114,11 +138,18 @@ captionsBtn.addEventListener('click', toggleCaptions);
 
 function toggleCaptions() {
   const isHidden = captions.mode === 'hidden';
-  captions.mode = isHidden ? 'showing' : 'hidden';
   videoContainer.classList.toggle('captions', isHidden);
+  
+  captions.mode = isHidden ? 'showing' : 'hidden';
 }
+/**
+ * End Captions
+ */
 
-// Duration
+
+/**
+ * Duration
+ */
 video.addEventListener('loadeddata', () => {
   totalTime.textContent = formatDuration(video.duration);
 });
@@ -148,21 +179,28 @@ function formatDuration(time) {
 function skip(duration) {
   video.currentTime += duration;
 }
+/**
+ * End Duration
+ */
 
-// Volume
+
+/**
+ * Volume
+ */
 muteBtn.addEventListener('click', toggleMute);
-
-volumeSlider.addEventListener('input', (e) => {
-  video.volume = e.target.value;
-  video.muted = e.target.value === 0;
-})
 
 function toggleMute() {
   video.muted = !video.muted;
 }
 
+volumeSlider.addEventListener('input', (e) => {
+  video.volume = e.target.value;
+  video.muted = e.target.value === 0;
+});
+
 video.addEventListener('volumechange', () => {
   volumeSlider.value = video.volume;
+
   let volumeLevel;
   if (video.muted || video.volume === 0) {
     volumeSlider.value = 0;
@@ -172,10 +210,29 @@ video.addEventListener('volumechange', () => {
   } else {
     volumeLevel = 'low';
   }
+
   videoContainer.dataset.volumeLevel = volumeLevel;
 });
+/**
+ * End Volume
+ */
 
-// View Modes
+
+/**
+ * View Modes
+ */
+document.addEventListener('fullscreenchange', () => {
+  videoContainer.classList.toggle('full-screen', document.fullscreenElement);
+});
+
+video.addEventListener('enterpictureinpicture', () => {
+  videoContainer.classList.add('mini-player');
+});
+
+video.addEventListener('leavepictureinpicture', () => {
+  videoContainer.classList.remove('mini-player');
+});
+
 theaterButton.addEventListener('click', toggleTheaterMode);
 fullScreenButton.addEventListener('click', toggleFullScreenMode);
 miniPlayerButton.addEventListener('click', toggleMiniPlayerMode);
@@ -199,27 +256,15 @@ function toggleMiniPlayerMode() {
     video.requestPictureInPicture();
   }
 }
+/**
+ * End View Modes
+ */
 
-document.addEventListener('fullscreenchange', () => {
-  videoContainer.classList.toggle('full-screen', document.fullscreenElement);
-});
 
-video.addEventListener('enterpictureinpicture', () => {
-  videoContainer.classList.add('mini-player');
-});
-
-video.addEventListener('leavepictureinpicture', () => {
-  videoContainer.classList.remove('mini-player');
-})
-
-// Play or Pause
-playPauseButton.addEventListener('click', togglePlay);
-
-video.addEventListener('click', togglePlay());
-
-function togglePlay() {
-  video.paused ? video.play() : video.pause();
-}
+/**
+ * Play or Pause
+ */
+video.addEventListener('click', togglePlay);
 
 video.addEventListener('play', () => {
   videoContainer.classList.remove('paused');
@@ -228,3 +273,12 @@ video.addEventListener('play', () => {
 video.addEventListener('pause', () => {
   videoContainer.classList.add('paused');
 })
+
+playPauseButton.addEventListener('click', togglePlay);
+
+function togglePlay() {
+  video.paused ? video.play() : video.pause();
+}
+/**
+ * End Play or Pause
+ */
